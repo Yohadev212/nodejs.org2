@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout or Fetch Code') {
+            steps {
+                // Checkout code from GitHub
+                git 'https://github.com/Yohadev212/nodejs.org2.git' // Replace with your GitHub URL
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                // Install node dependencies
+                sh 'npm install'
+            }
+        }
+
+        stage('Run Unit Testing') {
+            steps {
+                // Run unit tests
+                sh 'npm test'
+            }
+        }
+
+        stage('Dockerize') {
+            steps {
+                // Build Docker image
+                sh 'docker build -t your-dockerhub-username/node-app:latest .'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                // Log in to Docker Hub and push the image
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                    sh 'docker push your-dockerhub-ymedhat/node-app:latest'
+                }
+            }
+        }
+    }
+}
